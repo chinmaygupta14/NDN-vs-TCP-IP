@@ -131,10 +131,10 @@ main(int argc, char* argv[])
   ndn::GlobalRoutingHelper::CalculateRoutes();
 
   // Create the animation object and configure for specified output
-  AnimationInterface anim (animFile);
+  // AnimationInterface anim (animFile);
 
-  PcapWriter trace("ndn-simple-trace.pcap");
-  Config::ConnectWithoutContext("/NodeList//DeviceList//$ns3::PointToPointNetDevice/MacTx",
+  PcapWriter trace("ndn-grid.pcap");
+  Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::PointToPointNetDevice/MacTx",
                                 MakeCallback(&PcapWriter::TracePacket, &trace));
   
   Simulator::Stop(Seconds(20.0));
