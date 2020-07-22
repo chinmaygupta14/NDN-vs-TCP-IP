@@ -26,8 +26,29 @@
 #include "ns3/ndnSIM-module.h"
 #include "ns3/netanim-module.h"
 
+
 namespace ns3 {
 
+  class PcapWriter {
+public:
+  PcapWriter(const std::string& file)
+  {
+    PcapHelper helper;
+    m_pcap = helper.CreateFile(file, std::ios::out, PcapHelper::DLT_PPP);
+  }
+
+  void
+  TracePacket(Ptr<const Packet> packet)
+  {
+    static PppHeader pppHeader;
+    pppHeader.SetProtocol(0x0077);
+
+    m_pcap->Write(Simulator::Now(), pppHeader, packet);
+  }
+
+private:
+  Ptr<PcapFileWrapper> m_pcap;
+};
 /**
  * This scenario simulates a grid topology (using PointToPointGrid module)
  *
@@ -112,6 +133,10 @@ main(int argc, char* argv[])
   // Create the animation object and configure for specified output
   AnimationInterface anim (animFile);
 
+  PcapWriter trace("ndn-simple-trace.pcap");
+  Config::ConnectWithoutContext("/NodeList//DeviceList//$ns3::PointToPointNetDevice/MacTx",
+                                MakeCallback(&PcapWriter::TracePacket, &trace));
+  
   Simulator::Stop(Seconds(20.0));
 
   Simulator::Run();
