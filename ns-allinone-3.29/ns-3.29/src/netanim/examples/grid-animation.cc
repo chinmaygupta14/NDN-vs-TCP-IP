@@ -28,6 +28,9 @@
 
 using namespace ns3;
 
+NS_LOG_COMPONENT_DEFINE ("TcpPcapNanosecExample");
+ 
+
 int main (int argc, char *argv[])
 {
   Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (512));
@@ -42,6 +45,15 @@ int main (int argc, char *argv[])
   cmd.AddValue ("ySize", "Number of columns of nodes", ySize);
   cmd.AddValue ("animFile",  "File Name for Animation Output", animFile);
 
+  // If requested via the --nanosec cmdline flag, generate nanosecond timestamp for pcap traces
+ //
+   if (nanosec)
+     {
+       Config::SetDefault ("ns3::PcapFileWrapper::NanosecMode",   BooleanValue (true));
+     }
+ 
+ //
+  
   cmd.Parse (argc,argv);
   if (xSize < 1 || ySize < 1 || (xSize < 2 && ySize < 2))
     {
@@ -85,6 +97,16 @@ int main (int argc, char *argv[])
 
   // Set up the actual simulation
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  
+  // Set up tracing if enabled
+ //
+   if (tracing)
+     {
+       AsciiTraceHelper ascii;
+       pointToPoint.EnablePcapAll ("tcp-pcap-nanosec-example", false);
+     }
+ 
+ //
 
   Simulator::Run ();
   Simulator::Destroy ();
